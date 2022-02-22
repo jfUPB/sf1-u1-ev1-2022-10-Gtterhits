@@ -34,7 +34,7 @@ void task() {
         digitalWrite(LED_COUNT, HIGH);
         digitalWrite(BOMB_OUT, LOW);
         digitalWrite(LED_1, LOW); // Error, led encendido siempre
-        
+
         // Init display
         display.init();
         display.setContrast(255);
@@ -47,36 +47,43 @@ void task() {
         break;
       }
     case BombStates::CONFIG: {
+        // Esperar a que se presione algun boton (ARMED, UP, DOWN)
+        if (digitalRead(DOWN_BTN) == LOW) { // Evento 2: presionar UP para subir el tiempo
+          if (counter > 10) {
+            counter--;
+          }
+        }
+        else if (digitalRead(UP_BTN == LOW)) { // Evento 3: presionar DOWN para bajar el tiempo.
+          if (counter < 60) {
+            counter++;
+          }
+        }
+        else if (digitalRead(ARM_BTN == LOW)) { // Evento 4: presionar armado para pasar al estado ARMED
+          bombState = BombStates::ARMED;
+        }
+
         // Evento 1: mostrar el 20 en la pantalla
+        // Actualizar la pantalla
         display.clear();
         display.drawString(10, 20, String(counter));
         display.display();
-        // Esperar a que se presione algun boton (ARMED, UP, DOWN)
-        
-      /*  if () {
-
-        }
-        else if () {
-
-        }*/
-        
-        // Evento 2: presionar UP para subir el tiempo
-        // Evento 3: presionar DOWN para bajar el tiempo.
 
         /*
-
                 display.clear();
                 display.drawString(10, 20, String(counter));
                 display.display();
-
         */
-
-
-        // Evento 4: presionar armado para pasar al estado ARMED
 
         break;
       }
     case BombStates::ARMED: {
+
+
+
+
+
+
+
 
 
 
