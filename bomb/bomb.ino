@@ -79,7 +79,7 @@ void task() {
             }
           }
         }
-        if (digitalRead(UP_BTN) == LOW) { // Evento 2: presionar UP para subir el tiempo
+        else if (digitalRead(UP_BTN) == LOW) { // Evento 2: presionar UP para subir el tiempo
           bool_UP = true;
           if (bool_UP) {
             if (counter < 60) {
@@ -88,7 +88,7 @@ void task() {
             }
           }
         }
-        if (digitalRead(ARM_BTN) == LOW) { // Evento 4: presionar armado para pasar al estado ARMED
+        else if (digitalRead(ARM_BTN) == LOW) { // Evento 4: presionar armado para pasar al estado ARMED
           bool_ARM = true;
           if (bool_ARM){
             bombState = BombStates::ARMED;
