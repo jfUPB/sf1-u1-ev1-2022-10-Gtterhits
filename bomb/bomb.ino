@@ -26,7 +26,9 @@ void loop() {
   btnsTask();
   task();
 }
+void disarmTask() {
 
+}
 void btnsTask() {
   enum class BtnsStates {INIT, WAITING_PRESS , WAITING_STABLE, WAITING_RELEASE};
   static BtnsStates btnsState =  BtnsStates::INIT;
@@ -189,7 +191,6 @@ void task() {
           else if (evBtnsData == ARM_BTN) {
             bombState = BombStates::ARMED;
             Serial.println("BombStates::ARMED");
-
           }
         }
 
@@ -197,16 +198,16 @@ void task() {
       }
 
     case BombStates::ARMED: {
-        const uint32_t interval = 1000;
-        const uint32_t stableTimeOut = 5000;
+        const uint32_t interval = 400;
 
-        static uint32_t previousMillis0 = 0;
+        static uint32_t previousMillis = 0;
         static uint8_t ledState_BOMB_OUT = LOW;
-        uint32_t currentMillis0 = millis();
 
+        uint32_t currentMillis = millis();
+        bool boomState = false;
 
-        if (currentMillis0 - previousMillis0 >= interval) {
-          previousMillis0 = currentMillis0;
+        if (currentMillis - previousMillis >= interval) {
+          previousMillis = currentMillis;
           if (ledState_BOMB_OUT == LOW) {
             ledState_BOMB_OUT = HIGH;
           }
@@ -221,34 +222,29 @@ void task() {
             display.display();
           }
         }
+        else if (counter == 0) {
 
-        if (counter == 0) {
           digitalWrite(LED_COUNT, LOW);
           digitalWrite(BOMB_OUT, HIGH);
 
           display.clear();
           display.drawString(10, 20, "BOOM");
           display.display();
-        }
 
-        if ((millis() - previousMillis0 ) >= stableTimeOut) {
+          delay(3000);
+
           digitalWrite(LED_COUNT, HIGH);
           digitalWrite(BOMB_OUT, LOW);
-
-          
           counter = 20;
           display.clear();
           display.drawString(10, 20, String(counter));
           display.display();
-
           bombState = BombStates::CONFIG;
         }
-
-
-
         break;
       }
     default:
+    
       break;
   }
 
