@@ -26,9 +26,7 @@ void loop() {
   btnsTask();
   task();
 }
-void disarmTask() {
 
-}
 void btnsTask() {
   enum class BtnsStates {INIT, WAITING_PRESS , WAITING_STABLE, WAITING_RELEASE};
   static BtnsStates btnsState =  BtnsStates::INIT;
@@ -136,6 +134,9 @@ void task() {
   static BombStates bombState =  BombStates::INIT;
   static uint8_t counter = 20;
 
+
+
+
   switch (bombState) {
 
     case BombStates::INIT: {
@@ -193,20 +194,49 @@ void task() {
             Serial.println("BombStates::ARMED");
           }
         }
-
         break;
       }
 
     case BombStates::ARMED: {
-        const uint32_t interval = 400;
 
-        static uint32_t previousMillis = 0;
-        static uint8_t ledState_BOMB_OUT = LOW;
+        static uint8_t vecTryPassword[7];
+        const uint8_t vecTruePassword = {UP_BTN, UP_BTN, DOWN_BTN, DOWN_BTN, UP_BTN, DOWN_BTN, ARM_BTN};
+        const uint8_t vecLenght = 7;
 
-        uint32_t currentMillis = millis();
-        bool boomState = false;
+        if (evBtns == true && vecLenght != 0) {
+          evBtns = false;
+          vecLenght--;
+          if (evBtnsData == UP_BTN) {
 
-        if (currentMillis - previousMillis >= interval) {
+          }
+          else if (evBtnsData == DOWN_BTN) {
+
+          }
+          else if (evBtnsData == ARM_BTN) {
+
+          }
+          else if (vecLenght <= 0) {
+            //limpiar el vector
+            //verificar si la contraseña es correcta
+            
+          }
+        }
+
+
+
+
+
+
+        /*const uint32_t interval = 200;
+          const uint32_t timeOut = 200;
+
+          static uint32_t previousMillis = 0;
+          static uint8_t ledState_BOMB_OUT = LOW;
+
+          uint32_t currentMillis = millis();
+          bool boomState = false;
+
+          if (currentMillis - previousMillis >= interval) {
           previousMillis = currentMillis;
           if (ledState_BOMB_OUT == LOW) {
             ledState_BOMB_OUT = HIGH;
@@ -221,31 +251,57 @@ void task() {
             display.drawString(10, 20, String(counter));
             display.display();
           }
-        }
-        else if (counter == 0) {
 
-          digitalWrite(LED_COUNT, LOW);
-          digitalWrite(BOMB_OUT, HIGH);
 
-          display.clear();
-          display.drawString(10, 20, "BOOM");
-          display.display();
 
-          delay(3000);
+          if (counter == 0) {
 
-          digitalWrite(LED_COUNT, HIGH);
-          digitalWrite(BOMB_OUT, LOW);
-          counter = 20;
-          display.clear();
-          display.drawString(10, 20, String(counter));
-          display.display();
+            currentMillis = millis();
+
+            digitalWrite(LED_COUNT, LOW);
+            digitalWrite(BOMB_OUT, HIGH);
+
+            display.clear();
+            display.drawString(10, 20, "BOOM");
+            display.display();
+          }
+          if (currentMillis - previousMillis >= timeOut) {
+            digitalWrite(LED_COUNT, HIGH);
+            digitalWrite(BOMB_OUT, LOW);
+
+            counter = 20;
+
+            display.clear();
+            display.drawString(10, 20, String(counter));
+            display.display();
+
+            bombState = BombStates::CONFIG;
+          }
+
+
+          }
+
+
+          }
+          else if (disarmTask(, , 7) == true) {
           bombState = BombStates::CONFIG;
-        }
-        break;
+          }
+          break;
+        */
       }
-    default:
-    
+
+    default: {
+
+      }
       break;
   }
-
 }
+
+
+
+/*
+    bool disarmTask(, , uint8_t lenght) {
+      for (uint8_t i = 0; i < lengt, i++)
+
+      }
+*/
