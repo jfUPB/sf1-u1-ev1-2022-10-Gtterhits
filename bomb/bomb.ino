@@ -273,6 +273,9 @@ void pricipalTask() {
             for (uint8_t j = 0; j < vecLength; j++) {
               vecTryPassword[j] = 0;
             }
+            digitalWrite(LED_1, HIGH);
+            delay(300);
+            digitalWrite(LED_1, LOW);
             bombState = BombStates::CONFIG;
           }
           else { //sino, i = 0, limpiar el vector y sigue la cuenta regresiva
@@ -282,7 +285,7 @@ void pricipalTask() {
               vecTryPassword[k] = 0;
             }
             digitalWrite(LED_PASSWORD_WRONG, HIGH);
-            delay(200);
+            delay(300);
             digitalWrite(LED_PASSWORD_WRONG, LOW);
           }
         }
@@ -298,13 +301,9 @@ void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData
   for (uint8_t i = 0; i < vecLengthData; i++) {
     if (vecTrueData[i] == vecTryData[i]) {
       *res = true;
-      digitalWrite(LED_1, HIGH);
-      delay(200);
-      digitalWrite(LED_1, LOW);
     }
     else {
       *res = false;
-
       break;
     }
   }
