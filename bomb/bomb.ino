@@ -297,7 +297,7 @@ void pricipalTask() {
   }
 }
 
-void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData, bool * res) {
+void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData, bool *res) {
   for (uint8_t i = 0; i < vecLengthData; i++) {
     if (vecTrueData[i] == vecTryData[i]) {
       *res = true;
