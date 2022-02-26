@@ -3,7 +3,6 @@
 #define BOMB_OUT 25
 #define LED_COUNT 26
 #define LED_PASSWORD_WRONG 27
-#define LED_PASSWORD_RIGHT 14
 #define UP_BTN 32
 #define DOWN_BTN 33
 #define ARM_BTN 13
@@ -142,6 +141,8 @@ void pricipalTask() {
         pinMode(LED_1, OUTPUT);
         pinMode(BOMB_OUT, OUTPUT);
         pinMode(LED_COUNT, OUTPUT);
+        pinMode(LED_PASSWORD_WRONG, OUTPUT);
+
 
 
         // LED_COUNT encendido
@@ -208,99 +209,82 @@ void pricipalTask() {
         static uint8_t ledState_BOMB_OUT = LOW;
         uint32_t currentMillis = millis();
 
-        enum class ArmedStates {COUNTER_PASSWORD, ABORT};
-        static ArmedStates armedState =  ArmedStates::COUNTER_PASSWORD;
+        //Cuenta regresiva
 
-        switch (armedState) {
-          case ArmedStates::COUNTER_PASSWORD: {
+        if (currentMillis - previousMillis >= interval) {
+          previousMillis = currentMillis;
+          if (ledState_BOMB_OUT == LOW) {
+            ledState_BOMB_OUT = HIGH;
+          }
+          else {
+            ledState_BOMB_OUT = LOW;
+            counter--;
+            display.clear();
+            display.drawString(10, 20, String(counter));
+            display.display();
+          }
+          digitalWrite(LED_COUNT, ledState_BOMB_OUT);
+          if (counter == 0) {
+            digitalWrite(LED_COUNT, LOW);
+            digitalWrite(BOMB_OUT, HIGH);
+            display.clear();
+            display.drawString(10, 20, "BOOM");
+            display.display();
+            delay(3000);
+            digitalWrite(LED_COUNT, HIGH);
+            digitalWrite(BOMB_OUT, LOW);
+            counter = 20;
+            display.clear();
+            display.drawString(10, 20, String(counter));
+            display.display();
+            bombState = BombStates::CONFIG;
+          }
+        }
 
-              //Cuenta regresiva
+        //ingrese la password
 
-              if (currentMillis - previousMillis >= interval) {
-                previousMillis = currentMillis;
-                if (ledState_BOMB_OUT == LOW) {
-                  ledState_BOMB_OUT = HIGH;
-                }
-                else {
-                  ledState_BOMB_OUT = LOW;
-                  counter--;
-                  display.clear();
-                  display.drawString(10, 20, String(counter));
-                  display.display();
-                }
-                digitalWrite(LED_COUNT, ledState_BOMB_OUT);
-                if (counter == 0) {
-                  digitalWrite(LED_COUNT, LOW);
-                  digitalWrite(BOMB_OUT, HIGH);
-                  display.clear();
-                  display.drawString(10, 20, "BOOM");
-                  display.display();
-                  delay(3000);
-                  digitalWrite(LED_COUNT, HIGH);
-                  digitalWrite(BOMB_OUT, LOW);
-                  counter = 20;
-                  display.clear();
-                  display.drawString(10, 20, String(counter));
-                  display.display();
-                  bombState = BombStates::CONFIG;
-                }
-              }
-
-              //ingrese la password
-
-
-              if (evBtns == true) {
-                evBtns = false;
-                if (dataCounter < vecLength) {
-                  if (evBtnsData == UP_BTN) {
-                    vecTryPassword[dataCounter] = evBtnsData;
-                  }
-                  else if (evBtnsData == DOWN_BTN) {
-                    vecTryPassword[dataCounter] = evBtnsData;
-                  }
-                  else if (evBtnsData == ARM_BTN) {          // al darle al ARM_BTN se reinicia el vector vecTryPassword =
-                    vecTryPassword[dataCounter] = evBtnsData;
-                    dataCounter = 0;
-                    for (uint8_t k = 0; k < vecLength; k++) {
-                      vecTryPassword[k] = 0;
-                      break;
-                    }
-                  }
-                  dataCounter++;
-                }
-              }
-              else if (dataCounter == vecLength) { //verifico que se el array este lleno y verificar si la contraseña es correcta y limpiar vector
-                disarmTask(vecTryPassword, vecTruePassword, vecLength, &statePassword); //statePassword va ser igual a la funcion que retorna un bool true si la clave es correcta
-                if (statePassword == true) { //si la clave es correcta entonces pase al estado CONFIG
-                  digitalWrite(LED_COUNT, HIGH);
-                  digitalWrite(BOMB_OUT, LOW);
-                  counter = 20;
-                  display.clear();
-                  display.drawString(10, 20, String(counter));
-                  display.display();
-                  for (uint8_t j = 0; j < vecLength; j++) {
-                    vecTryPassword[j] = 0;
-                  }
-                  bombState = BombStates::CONFIG;
-                }
-                else { //sino, i = 0, limpiar el vector y sigue la cuenta regresiva
-                  dataCounter = 0;
-                  for (uint8_t k = 0; k < vecLength; k++) {
-                    vecTryPassword[k] = 0;
-                  }
-                }
-              }
-
-
+        if (evBtns == true) {
+          evBtns = false;
+          if (dataCounter < vecLength) {
+            if (evBtnsData == UP_BTN) {
+              vecTryPassword[dataCounter] = evBtnsData;
             }
-            break;
-          case ArmedStates::ABORT: {
-
+            else if (evBtnsData == DOWN_BTN) {
+              vecTryPassword[dataCounter] = evBtnsData;
             }
-            break;
-          default: {
+            else if (evBtnsData == ARM_BTN) {          // al darle al ARM_BTN se reinicia el vector vecTryPassword =
+              vecTryPassword[dataCounter] = evBtnsData;
             }
-            break;
+            dataCounter++;
+          }
+        }
+        else if (dataCounter == vecLength) { //verifico que se el array este lleno y verificar si la contraseña es correcta y limpiar vector
+          Serial.println("Vector password lleno.");
+          disarmTask(vecTryPassword, vecTruePassword, vecLength, &statePassword); //statePassword va ser igual a la funcion que retorna un bool true si la clave es correcta
+          if (statePassword == true) { //si la clave es correcta entonces pase al estado CONFIG
+            Serial.println("Contraseña correcta");
+            digitalWrite(LED_COUNT, HIGH);
+            digitalWrite(BOMB_OUT, LOW);
+            counter = 20;
+            display.clear();
+            display.drawString(10, 20, String(counter));
+            display.display();
+            dataCounter = 0;
+            for (uint8_t j = 0; j < vecLength; j++) {
+              vecTryPassword[j] = 0;
+            }
+            bombState = BombStates::CONFIG;
+          }
+          else { //sino, i = 0, limpiar el vector y sigue la cuenta regresiva
+            Serial.println("Contraseña incorrecta");
+            dataCounter = 0;
+            for (uint8_t k = 0; k < vecLength; k++) {
+              vecTryPassword[k] = 0;
+            }
+            digitalWrite(LED_PASSWORD_WRONG, HIGH);
+            delay(200);
+            digitalWrite(LED_PASSWORD_WRONG, LOW);
+          }
         }
       }
       break;
@@ -310,18 +294,17 @@ void pricipalTask() {
   }
 }
 
-void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData, bool *res) {
+void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData, bool * res) {
   for (uint8_t i = 0; i < vecLengthData; i++) {
     if (vecTrueData[i] == vecTryData[i]) {
       *res = true;
+      digitalWrite(LED_1, HIGH);
+      delay(200);
+      digitalWrite(LED_1, LOW);
     }
     else {
       *res = false;
 
-
-      digitalWrite(LED_PASSWORD_WRONG, HIGH);
-      delay(200);
-      digitalWrite(LED_PASSWORD_WRONG, HIGH);
       break;
     }
   }
