@@ -2,6 +2,8 @@
 #define LED_1 14
 #define BOMB_OUT 25
 #define LED_COUNT 26
+#define LED_PASSWORD_WRONG 27
+#define LED_PASSWORD_RIGHT 14
 #define UP_BTN 32
 #define DOWN_BTN 33
 #define ARM_BTN 13
@@ -244,7 +246,7 @@ void pricipalTask() {
                 }
               }
 
-              //ingrese la pasword
+              //ingrese la password
 
 
               if (evBtns == true) {
@@ -256,8 +258,13 @@ void pricipalTask() {
                   else if (evBtnsData == DOWN_BTN) {
                     vecTryPassword[dataCounter] = evBtnsData;
                   }
-                  else if (evBtnsData == ARM_BTN) {
+                  else if (evBtnsData == ARM_BTN) {          // al darle al ARM_BTN se reinicia el vector vecTryPassword =
                     vecTryPassword[dataCounter] = evBtnsData;
+                    dataCounter = 0;
+                    for (uint8_t k = 0; k < vecLength; k++) {
+                      vecTryPassword[k] = 0;
+                      break;
+                    }
                   }
                   dataCounter++;
                 }
@@ -305,11 +312,17 @@ void pricipalTask() {
 
 void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData, bool *res) {
   for (uint8_t i = 0; i < vecLengthData; i++) {
-    if (vecTryData[i] == vecTrueData[i]) {
+    if (vecTrueData[i] == vecTryData[i]) {
       *res = true;
     }
     else {
       *res = false;
+
+
+      digitalWrite(LED_PASSWORD_WRONG, HIGH);
+      delay(200);
+      digitalWrite(LED_PASSWORD_WRONG, HIGH);
+      break;
     }
   }
 }
