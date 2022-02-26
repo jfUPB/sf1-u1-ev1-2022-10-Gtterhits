@@ -308,3 +308,4 @@ void disarmTask(uint8_t *vecTryData, uint8_t *vecTrueData, uint8_t vecLengthData
     }
   }
 }
+//el que se copie es gay :v
